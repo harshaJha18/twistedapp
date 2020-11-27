@@ -1,0 +1,31 @@
+Name : Twishish Shrimali 
+Deadline : July 26th 2020
+Company : Shadow Health
+
+Requirment : 1. Install any web server. I have used XAMPP(XAMPP is a free and open-source cross-platform web server solution).
+2. Install docker from https://docs.docker.com/docker-for-mac/install/
+
+Steps to run the application:-
+1. set "upload" folder as a ServerRoot of webserver.
+2. Test the url in web browser
+
+	http://localhost/upload
+
+Docker steps : 
+
+1. Build the docker image
+	
+	sudo docker build -t html-server-image: v1 // Instead of html-sever-image: v1 , we can use auto generated docker id.
+
+	sudo docker images
+
+2 Run the Docker Container
+	
+	sudo docker run -d -p 80:80 html-server-image:v1
+
+	sudo docker ps
+
+Description: Build a web application which allow user to upload any file. User can set name and expiration time of the image. 
+Once file is uploaded with new name and time boundation. User can only able to download the file with new title until it doesn't expire.
+
+Note : Web application doesn't have any database link to the application. 

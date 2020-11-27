@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+    <head>
+        <link href="dropzone/dist/min/dropzone.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="dropzone/dist/min/dropzone.min.js" type="text/javascript"></script>
+
+    </head>
+    <body >
+        <div class="container" >
+            <br><br>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class='content'>
+                            <form action="#" class="dropzone"></form>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+                <div class="row">
+                    <div class="col-md-8">
+                        <label for="filename">file name</label>
+                        <input type="text" class="form-control" id="filename" name="filename" disabled>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="filename">expiration time(seconds)</label>
+                        <input type="text" class="form-control" id="expiration" name="expiration" disabled>
+                    </div>
+
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-success" id="upload" style="display:none" disabled>upload</button>
+
+                        <a class="btn btn-warning" id="download" style="display:none" disabled>download</a>
+                    </div>
+                </div>
+                <br>
+                <p id="status" class="text-danger" style="display:none">Download URL expired!</p>
+            </div>
+            <br>
+
+        </div>
+
+        <script>
+
+            Dropzone.autoDiscover = false;
+            var myDropzone = new Dropzone(".dropzone", {
+                autoProcessQueue: false,
+                parallelUploads: 10,
+                addRemoveLinks: true,
+                maxFilesize: 65535,
+                init: function(){
+                    this.on("addedfile", function(file) {
+                    	file.previewElement.addEventListener("click", function() {
+                            myDropzone.removeFile(file);
+                        });
+
+                        if(this.files[1] != null){
+                            this.removeFile(this.files[0]);
+                        }
+
+                        if(this.files[0] != null){
+                        	$("#filename").attr('disabled', false);
+                            $("#expiration").attr('disabled', false);
+                        }
+
+                        $("#filename").change(function(){
+                        	$("#upload").show();
+                            $("#upload").attr('disabled', false);
+                        });
+
+                        $("#upload").click(function(){
+                            $("#download").show();
+                            $("#download").attr('disabled', false);
+                            $("#expiration").show();
+                            $("#expiration").attr('disabled', false);
+
+
+                            myDropzone.processQueue();
+
+                            var filename = $("#filename").val();
+                            var expiration = $("#expiration").val();
+
+                            var now = new Date();
+                            var current = now.getTime();
+                            var period = current + expiration * 1000;
+
+
+                            var blob = new Blob([file], {type: 'application/download'});
+
+                            var extension = file.name.substr( (file.name.lastIndexOf('.') +1) );
+
+                            var blobUrl = URL.createObjectURL(blob);
+                                // URL.revokeObjectURL(blobUrl);
+
+                            var timer = setInterval(function(){
+                                now = new Date();
+                                current = now.getTime();
+
+                                if(current >= period){
+                                    URL.revokeObjectURL(blobUrl);
+                                    clearInterval(timer);
+                                    console.log("expired!");
+                                    $("#status").show();
+                                }else{
+                                    $("#status").hide();
+
+                                }
+                            }, 1000);
+                            $("#download").attr('href', blobUrl);
+                            $("#download").attr('download', filename + "." + extension);
+
+                        });
+                    });
+                }
+            });
+
+        </script>
+    </body>
+</html>
